@@ -111,7 +111,7 @@ pivot_longer(data, cols, names_to = "name")
 -   The second argument, `cols`, is where you specify which columns to pivot into longer format -- in this case all columns except for the `faculty_type`
 -   The third argument, `names_to`, is a string specifying the name of the column to create from the data stored in the column names of data -- in this case `year`
 
-```{r}
+```{r pivot}
 staff_long <- staff %>%
   pivot_longer(cols = -faculty_type, names_to = "year") %>%
   mutate(year = as.numeric(year))
@@ -126,7 +126,7 @@ staff_long
 And now let's plot is as a line plot.
 A possible approach for creating a line plot where we color the lines by faculty type is the following:
 
-```{r fig.width = 10, fig.fullwidth = TRUE}
+```{r line-plot, fig.width = 10, fig.fullwidth = TRUE}
 staff_long %>%
   ggplot(aes(x = year, y = value, color = faculty_type)) +
   geom_line()
@@ -136,7 +136,7 @@ But note that this results in a message as well as an unexpected plot.
 The message is saying that there is only one observation for each faculty type year combination.
 We can fix this using the `group` aesthetic following.
 
-```{r fig.width = 10, fig.fullwidth = TRUE}
+```{r faculty-trends, fig.width = 10, fig.fullwidth = TRUE}
 staff_long %>%
   ggplot(aes(x = year, y = value, group = faculty_type, color = faculty_type)) +
   geom_line() +
@@ -153,7 +153,7 @@ staff_long %>%
 3.  Implement the changes you proposed in the previous exercise.
 
 
-```{r fig.width = 10, fig.fullwidth = TRUE}
+```{r clean-faculty-trends, fig.width = 10, fig.fullwidth = TRUE}
 staff_long %>%
   ggplot(aes(x = year, y = value, group = faculty_type, color = faculty_type)) +
   geom_line() +
@@ -183,11 +183,33 @@ knitr::include_graphics("img/fisheries.png")
 
 Load the data.
 
-```{r load-data-fisheries, eval = FALSE}
+```{r load-data-fisheries, eval = TRUE}
 fisheries <- read_csv("data/fisheries.csv")
 ```
 
 5.  Create a new data visualisation for these data that implements the improvements you proposed in the previous exercise (or many of them as you can).
+
+
+```{r fishing-plot}
+fisheries %>%
+  filter(total >= 1000000) %>%
+  mutate(country = fct_reorder(country, aquaculture, min)) %>%
+  select(-total) %>%
+pivot_longer(cols = -country, names_to = "type") %>%
+  ggplot(aes(y=country, x=value, fill=type)) +
+  geom_bar(stat="identity", position = "fill") +
+  scale_fill_manual(values=c("#a6bddb", "#2b8cbe")) +
+  theme(legend.title = element_blank()) +
+  theme(legend.position="top") +
+  labs(title="Fishing by Country") +
+    xlab("Proportion") +
+    ylab("")
+
+
+
+```
+
+
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards and review the md document on GitHub to make sure you're happy with the final state of your work.*
 
